@@ -1,0 +1,58 @@
+{% load static %}
+{% csrf_token %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Nick Huber">
+  <title>Flag voting</title>
+  <link href="{% static '/css/bootstrap.min.css'%}" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column h-100">
+
+  <div class="container">
+    <div class="py-5 text-center">
+      <h2>The ultimate flag preference voting system</h2>
+      <p class="lead">Below are 2 flags, simply click the one you like the most and repeat until you are bored.</p>
+    </div>
+
+    <div class="row">
+      <div class="col-sm">
+        <div class="border" id="flag_1">
+          {{ flag_1.svg | safe }}
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="border" id="flag_2">
+          {{ flag_2.svg | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+<script>
+  (function () {
+    const vote_id = "{{ vote.id }}";
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    document.getElementById("flag_1").onclick = function () {
+      fetch("choice/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+        body: JSON.stringify({ vote_id: vote_id, chosen_flag_id: {{ flag_1.id }} })
+      }).then(response => location.reload());
+    }
+    document.getElementById("flag_2").onclick = function () {
+      fetch("choice/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+        body: JSON.stringify({ vote_id: vote_id, chosen_flag_id: {{ flag_2.id }} })
+      }).then(response => location.reload());
+    }
+  })();
+</script>
+
+</html>
