@@ -2,7 +2,15 @@ from django.contrib import admin
 
 from .models import Flag, Vote
 
-admin.site.register(Flag)
+
+@admin.register(Flag)
+class VoteAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "elo_rating",
+        "trueskill_rating_mu",
+        "trueskill_rating_sigma",
+    )
 
 
 @admin.register(Vote)

@@ -1,11 +1,17 @@
 import uuid
 
+import elo
+import trueskill
+
 from django.db import models
 
 
 class Flag(models.Model):
     name = models.CharField(max_length=1024)
     svg = models.TextField(help_text="The SVG string to render this flag")
+    elo_rating = models.FloatField(default=1000.0)
+    trueskill_rating_mu = models.FloatField(default=100.0)
+    trueskill_rating_sigma = models.FloatField(default=7.171)
 
     def __str__(self):
         return self.name
@@ -25,7 +31,51 @@ class Vote(models.Model):
     choice = models.ForeignKey(
         Flag, on_delete=models.CASCADE, related_name="chosen_choice", null=True,
     )
-    voted = models.BooleanField()
+    voted = models.BooleanField(db_index=True)
 
     def __str__(self):
         return f"{self.choice_1} vs {self.choice_2} => {self.choice}"
+
+    def update_elo(self):
+        if self.choice_id == self.choice_1_id:
+            (choice_1_elo, choice_2_elo) = elo.rate_1vs1(
+                self.choice_1.elo_rating, self.choice_2.elo_rating
+            )
+        else:
+            (choice_2_elo, choice_1_elo) = elo.rate_1vs1(
+                self.choice_2.elo_rating, self.choice_1.elo_rating
+            )
+        self.choice_2.elo_rating = choice_2_elo
+        self.choice_2.save()
+        self.choice_1.elo_rating = choice_1_elo
+        self.choice_1.save()
+
+    def update_trueskill(self):
+        if self.choice_id == self.choice_1_id:
+            (choice_1_trueskill, choice_2_trueskill) = trueskill.rate_1vs1(
+                trueskill.Rating(
+                    mu=self.choice_1.trueskill_rating_mu,
+                    sigma=self.choice_1.trueskill_rating_sigma,
+                ),
+                trueskill.Rating(
+                    mu=self.choice_2.trueskill_rating_mu,
+                    sigma=self.choice_2.trueskill_rating_sigma,
+                ),
+            )
+        else:
+            (choice_2_trueskill, choice_1_trueskill) = trueskill.rate_1vs1(
+                trueskill.Rating(
+                    mu=self.choice_2.trueskill_rating_mu,
+                    sigma=self.choice_2.trueskill_rating_sigma,
+                ),
+                trueskill.Rating(
+                    mu=self.choice_1.trueskill_rating_mu,
+                    sigma=self.choice_1.trueskill_rating_sigma,
+                ),
+            )
+        self.choice_2.trueskill_rating_mu = choice_2_trueskill.mu
+        self.choice_2.trueskill_rating_sigma = choice_2_trueskill.sigma
+        self.choice_2.save()
+        self.choice_1.trueskill_rating_mu = choice_1_trueskill.mu
+        self.choice_1.trueskill_rating_sigma = choice_1_trueskill.sigma
+        self.choice_1.save()
