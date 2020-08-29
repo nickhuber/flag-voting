@@ -1,0 +1,79 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<style>
+.flag-small { height: 7em; box-shadow: 2px 2px 12px #928374; };
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+  <div class="py-5 text-center">
+    <h2>Stats</h2>
+    <p class="lead">
+      The flags are ranked as if this were a skill based 1v1 competition, using
+      both Elo and TrueSkill™ to see how that changes the ratings.
+    </p>
+  </div>
+  <h1>TrueSkill™</h1>
+  <div class="row">
+    <div class="col-sm">
+      <h3>Highest rated flags</h3>
+      <ol>
+        {% for flag in ts_most_popular_flags %}
+        <li>
+          <h4>{{flag.name}}</h4>
+          <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <div class="col-sm">
+      <h3>Lowest rated 5 flags</h3>
+      <ol>
+        {% for flag in ts_least_popular_flags %}
+        <li>
+          <h4>{{flag.name}}</h4>
+          <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+
+  <h1>Elo</h1>
+  <div class="row">
+    <div class="col-sm">
+      <h3>Highest rated flags</h3>
+      <ol>
+        {% for flag in elo_most_popular_flags %}
+        <li>
+          <h4>{{flag.name}}</h4>
+          <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <div class="col-sm">
+      <h3>Lowest rated 5 flags</h3>
+      <ol>
+        {% for flag in elo_least_popular_flags %}
+        <li>
+          <h4>{{flag.name}}</h4>
+          <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+</div>
+  </div>
+
+
+    </div>
+  </div>
+{% endblock %}
+
+{% block title %} - stats{% endblock %}

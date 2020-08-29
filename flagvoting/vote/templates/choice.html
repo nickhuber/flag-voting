@@ -1,21 +1,6 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
+{% extends "_base.html" %}
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="author" content="Nick Huber">
-  <title>Flag voting</title>
-  <link href="{% static '/css/bootstrap.min.css'%}" rel="stylesheet">
-<style>
-.flag-container { align-items: center; gap: 20px; }
-.flag { box-shadow: 2px 2px 12px #928374; }
-</style>
-</head>
-
-<body class="d-flex flex-column h-100">
-
+{% block content %}
   <div class="container">
     <div class="py-5 text-center">
       <h2>The ultimate flag preference voting system</h2>
@@ -25,19 +10,27 @@
     <div class="flag-container row">
       <div class="col-sm">
         <div class="flag " id="flag-1">
-          <img src="{% url 'flag' flag_1.id %}">
+          <img src="{% url 'flag' vote.choice_1.id %}">
         </div>
       </div>
       <div class="col-sm">
         <div class="flag " id="flag-2">
-          <img src="{% url 'flag' flag_2.id %}">
+          <img src="{% url 'flag' vote.choice_2.id %}">
         </div>
       </div>
     </div>
   </div>
-
 {% csrf_token %}
-</body>
+{% endblock %}
+
+{% block head %}
+<style>
+.flag-container { align-items: center; gap: 20px; }
+.flag { box-shadow: 2px 2px 12px #928374; }
+</style>
+{% endblock %}
+
+{% block scripts %}
 <script>
   (function () {
     const vote_id = "{{ vote.id }}";
@@ -46,17 +39,16 @@
       fetch("choice/", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify({ vote_id: vote_id, chosen_flag_id: {{ flag_1.id }} })
+        body: JSON.stringify({ chosen_flag_id: {{ vote.choice_1.id }} })
       }).then(response => location.reload());
     }
     document.getElementById("flag-2").onclick = function () {
       fetch("choice/", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify({ vote_id: vote_id, chosen_flag_id: {{ flag_2.id }} })
+        body: JSON.stringify({ chosen_flag_id: {{ vote.choice_2.id }} })
       }).then(response => location.reload());
     }
   })();
 </script>
-
-</html>
+{% endblock %}
