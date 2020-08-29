@@ -1,4 +1,5 @@
 import uuid
+import re
 
 import elo
 import trueskill
@@ -29,6 +30,9 @@ class Flag(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        self.svg = re.sub(r"<title>.*<\/title>", "", self.svg)
 
 
 class Vote(models.Model):

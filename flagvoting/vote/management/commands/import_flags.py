@@ -17,5 +17,7 @@ class Command(BaseCommand):
             with open(
                 os.path.join(options["path_to_repo"], "svg", f"{abbr.lower()}.svg"), "r"
             ) as f:
-                Flag.objects.create(name=name, svg=f.read())
+                flag = Flag(name=name, svg=f.read())
+                flag.clean()
+                flag.save()
             self.stdout.write(self.style.SUCCESS(f'Imported "{name}"'))
