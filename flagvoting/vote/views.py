@@ -1,8 +1,8 @@
 import json
 import random
 
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 
 from .models import Flag, Vote
 
@@ -68,3 +68,8 @@ def choice(request):
         return JsonResponse(
             {"status": "failure", "reason": "only POST allowed"}, status=400
         )
+
+
+def flag(request, id):
+    flag = get_object_or_404(Flag, id=id)
+    return HttpResponse(flag.svg, content_type="image/svg+xml")

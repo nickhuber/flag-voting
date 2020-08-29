@@ -25,12 +25,12 @@
     <div class="flag-container row">
       <div class="col-sm">
         <div class="flag " id="flag-1">
-          {{ flag_1.svg | safe }}
+          <img src="{% url 'flag' flag_1.id %}">
         </div>
       </div>
       <div class="col-sm">
         <div class="flag " id="flag-2">
-          {{ flag_2.svg | safe }}
+          <img src="{% url 'flag' flag_2.id %}">
         </div>
       </div>
     </div>

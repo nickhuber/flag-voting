@@ -7,5 +7,6 @@ import vote.views
 urlpatterns = [
     path("", vote.views.choose),
     path("choice/", vote.views.choice),
+    path("flag/<int:id>.svg", vote.views.flag, name="flag"),
     path("admin/", admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
