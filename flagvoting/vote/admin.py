@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from .models import Flag, Vote
 
 
@@ -10,7 +9,13 @@ class VoteAdmin(admin.ModelAdmin):
         "elo_rating",
         "trueskill_rating_mu",
         "trueskill_rating_sigma",
+        "trueskill_rating",
     )
+
+    def trueskill_rating(self, obj):
+        return obj.trueskill_rating
+
+    trueskill_rating.admin_order_field = "trueskill_rating"
 
 
 @admin.register(Vote)

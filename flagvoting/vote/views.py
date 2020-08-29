@@ -51,11 +51,11 @@ def choice(request):
         if vote_request["chosen_flag_id"] in (vote.choice_1.id, vote.choice_2.id):
             vote.choice = Flag.objects.get(id=vote_request["chosen_flag_id"])
             vote.voted = True
-            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
             if x_forwarded_for:
-                vote.voter_ip = x_forwarded_for.split(',')[0]
+                vote.voter_ip = x_forwarded_for.split(",")[0]
             else:
-                vote.voter_ip = request.META.get('REMOTE_ADDR')
+                vote.voter_ip = request.META.get("REMOTE_ADDR")
             vote.update_elo()
             vote.update_trueskill()
             vote.save()

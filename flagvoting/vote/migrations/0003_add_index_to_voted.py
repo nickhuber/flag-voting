@@ -6,13 +6,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vote', '0002_flag_elo_rating'),
+        ("vote", "0002_flag_elo_rating"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='vote',
-            name='voted',
-            field=models.BooleanField(db_index=True),
+            model_name="vote", name="voted", field=models.BooleanField(db_index=True),
         ),
     ]

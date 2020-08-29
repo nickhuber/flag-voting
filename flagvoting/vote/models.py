@@ -4,14 +4,28 @@ import elo
 import trueskill
 
 from django.db import models
+from django.db.models import F
+
+
+class FlagManager(models.Manager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.annotate(
+            trueskill_rating=models.ExpressionWrapper(
+                F("trueskill_rating_mu") - (3 * F("trueskill_rating_sigma")),
+                output_field=models.FloatField(),
+            )
+        )
+        return qs
 
 
 class Flag(models.Model):
     name = models.CharField(max_length=1024)
     svg = models.TextField(help_text="The SVG string to render this flag")
     elo_rating = models.FloatField(default=1000.0)
-    trueskill_rating_mu = models.FloatField(default=100.0)
-    trueskill_rating_sigma = models.FloatField(default=7.171)
+    trueskill_rating_mu = models.FloatField(default=trueskill.Rating().mu)
+    trueskill_rating_sigma = models.FloatField(default=trueskill.Rating().sigma)
+    objects = FlagManager()
 
     def __str__(self):
         return self.name
