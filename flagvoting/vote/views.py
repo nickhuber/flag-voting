@@ -14,10 +14,16 @@ def choose(request):
         first_id = random.choice(ids)
         ids.remove(first_id)
         second_id = random.choice(ids)
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            voter_ip = x_forwarded_for.split(",")[0]
+        else:
+            voter_ip = request.META.get("REMOTE_ADDR")
         vote = Vote.objects.create(
             voted=False,
             choice_1=Flag.objects.get(id=first_id),
             choice_2=Flag.objects.get(id=second_id),
+            voter_ip=voter_ip,
         )
         request.session["vote"] = str(vote.id)
     else:

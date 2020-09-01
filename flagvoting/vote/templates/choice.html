@@ -2,11 +2,6 @@
 
 {% block content %}
   <div class="container">
-    <div class="py-5 text-center">
-      <h2>The ultimate flag preference voting system</h2>
-      <p class="lead">Below are 2 flags, simply click the one you like the most and repeat until you are bored.</p>
-    </div>
-
     <div class="flag-container row">
       <div class="col-sm">
         <div class="flag " id="flag-1">
@@ -19,6 +14,10 @@
         </div>
       </div>
     </div>
+    <div class="py-5 text-center">
+      <h2>The ultimate flag preference voting system</h2>
+      <p class="lead">Choose one of the above flags, repeat until bored.</p>
+    </div>
   </div>
 {% csrf_token %}
 {% endblock %}
@@ -26,7 +25,7 @@
 {% block head %}
 <style>
 .flag-container { align-items: center; gap: 20px; }
-.flag { box-shadow: 2px 2px 12px #928374; }
+.flag { box-shadow: 2px 2px 12px #928374;  margin-top: 1ex; }
 </style>
 {% endblock %}
 

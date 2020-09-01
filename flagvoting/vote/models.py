@@ -52,7 +52,10 @@ class Vote(models.Model):
     voted = models.BooleanField(db_index=True)
 
     def __str__(self):
-        return f"{self.choice_1} vs {self.choice_2} => {self.choice}"
+        if self.choice:
+            return f"{self.choice_1} vs {self.choice_2} => {self.choice}"
+        else:
+            return f"{self.choice_1} vs {self.choice_2}"
 
     def update_elo(self):
         if self.choice_id == self.choice_1_id:

@@ -7,8 +7,6 @@ class VoteAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "elo_rating",
-        "trueskill_rating_mu",
-        "trueskill_rating_sigma",
         "trueskill_rating",
     )
 
@@ -21,12 +19,12 @@ class VoteAdmin(admin.ModelAdmin):
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
-        "choice_1",
-        "choice_2",
-        "choice",
+        "description",
         "voted",
         "voter_ip",
         "created_at",
     )
     list_filter = ("voted",)
+
+    def description(self, obj):
+        return str(obj)
