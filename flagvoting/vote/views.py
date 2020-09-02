@@ -3,6 +3,7 @@ import random
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
+from django.db.models import Count
 
 from .models import Flag, Vote
 
@@ -89,10 +90,18 @@ def stats(request):
     ts_least_popular_flags = Flag.objects.order_by("trueskill_rating")[:5]
     elo_most_popular_flags = Flag.objects.order_by("-elo_rating")[:5]
     elo_least_popular_flags = Flag.objects.order_by("elo_rating")[:5]
+    flags_by_vote = (
+        Vote.objects.filter(choice__isnull=False)
+        .values("choice__id", "choice__name")
+        .annotate(num_votes=Count("choice"))
+        .order_by("-num_votes")
+    )
     return render(
         request,
         "stats.html",
         {
+            "most_voted_for": flags_by_vote.first(),
+            "least_voted_for": flags_by_vote.last(),
             "ts_most_popular_flags": ts_most_popular_flags,
             "ts_least_popular_flags": ts_least_popular_flags,
             "elo_most_popular_flags": elo_most_popular_flags,
