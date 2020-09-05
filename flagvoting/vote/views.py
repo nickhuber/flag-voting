@@ -47,7 +47,7 @@ def choice(request, group=FlagGroup.COUNTRY):
             {"status": "failure", "reason": "Invalid group"},
             status=400,
         )
-    if not request.session.get("vote"):
+    if not request.session.get(f"vote/{group}"):
         return JsonResponse(
             {"status": "failure", "reason": "You do not have a vote in progress"},
             status=400,
