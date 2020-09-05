@@ -20,9 +20,20 @@ class FlagManager(models.Manager):
         return qs
 
 
+class FlagGroup(models.TextChoices):
+    COUNTRY = "COUNTRY", "Country"
+    STATE = "STATE", "State"
+
+
 class Flag(models.Model):
     name = models.CharField(max_length=1024)
     svg = models.TextField(help_text="The SVG string to render this flag")
+    group = models.CharField(
+        max_length=7,
+        choices=FlagGroup.choices,
+        default=FlagGroup.COUNTRY,
+        db_index=True,
+    )
     elo_rating = models.FloatField(default=1000.0)
     trueskill_rating_mu = models.FloatField(default=trueskill.Rating().mu)
     trueskill_rating_sigma = models.FloatField(default=trueskill.Rating().sigma)

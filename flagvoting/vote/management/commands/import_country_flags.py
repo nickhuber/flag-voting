@@ -1,7 +1,7 @@
 import json
 import os
 from django.core.management.base import BaseCommand, CommandError
-from vote.models import Flag
+from vote.models import Flag, FlagGroup
 
 # These flags are copies of other flags
 excluded_abbrs = {
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             with open(
                 os.path.join(options["path_to_repo"], "svg", f"{abbr.lower()}.svg"), "r"
             ) as f:
-                flag = Flag(name=name, svg=f.read())
+                flag = Flag(name=name, svg=f.read(), group=FlagGroup.COUNTRY)
                 flag.clean()
                 flag.save()
             self.stdout.write(self.style.SUCCESS(f'Imported "{name}"'))

@@ -5,13 +5,24 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
 
-from .models import Flag, Vote
+from .models import Flag, FlagGroup, Vote
 
 
-def choose(request):
-    if request.session.get("vote", None) is None:
+def choose(request, group=FlagGroup.COUNTRY):
+    if group not in FlagGroup:
+        raise Http404("No flag has that group.")
+    vote = Vote.objects.none()
+    if request.session.get(f"vote/{group}", None):
+        # Use the previous vote if it hasn't yet been resolved
+        try:
+            vote = Vote.objects.get(id=request.session[f"vote/{group}"])
+        except Vote.DoesNotExist:
+            pass
+        else:
+            vote = Vote.objects.get(id=request.session[f"vote/{group}"])
+    if not vote:
         # No previous vote, or previous vote was resolved
-        ids = list(Flag.objects.all().values_list("id", flat=True))
+        ids = list(Flag.objects.filter(group=group).values_list("id", flat=True))
         first_id = random.choice(ids)
         ids.remove(first_id)
         second_id = random.choice(ids)
@@ -26,20 +37,22 @@ def choose(request):
             choice_2=Flag.objects.get(id=second_id),
             voter_ip=voter_ip,
         )
-        request.session["vote"] = str(vote.id)
-    else:
-        # Use the previous vote if it hasn't yet been resolved
-        vote = Vote.objects.get(id=request.session["vote"])
+        request.session[f"vote/{group}"] = str(vote.id)
     return render(request, "choice.html", {"vote": vote})
 
 
-def choice(request):
+def choice(request, group=FlagGroup.COUNTRY):
+    if group not in FlagGroup:
+        return JsonResponse(
+            {"status": "failure", "reason": "Invalid group"},
+            status=400,
+        )
     if not request.session.get("vote"):
         return JsonResponse(
             {"status": "failure", "reason": "You do not have a vote in progress"},
             status=400,
         )
-    vote = Vote.objects.get(id=request.session["vote"])
+    vote = Vote.objects.get(id=request.session[f"vote/{group}"])
     if request.method == "POST":
         try:
             vote_request = json.loads(request.body)
@@ -68,7 +81,7 @@ def choice(request):
             vote.update_elo()
             vote.update_trueskill()
             vote.save()
-            request.session["vote"] = None
+            request.session[f"vote/{group}"] = None
             return JsonResponse({"status": "success"})
         else:
             return JsonResponse(
@@ -86,25 +99,17 @@ def flag(request, id):
 
 
 def stats(request):
-    ts_most_popular_flags = Flag.objects.order_by("-trueskill_rating")[:5]
-    ts_least_popular_flags = Flag.objects.order_by("trueskill_rating")[:5]
-    elo_most_popular_flags = Flag.objects.order_by("-elo_rating")[:5]
-    elo_least_popular_flags = Flag.objects.order_by("elo_rating")[:5]
-    flags_by_vote = (
-        Vote.objects.filter(choice__isnull=False)
-        .values("choice__id", "choice__name")
-        .annotate(num_votes=Count("choice"))
-        .order_by("-num_votes")
-    )
+    most_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by("-trueskill_rating")[:5]
+    least_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by("trueskill_rating")[:5]
+    most_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by("-trueskill_rating")[:5]
+    least_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by("trueskill_rating")[:5]
     return render(
         request,
         "stats.html",
         {
-            "most_voted_for": flags_by_vote.first(),
-            "least_voted_for": flags_by_vote.last(),
-            "ts_most_popular_flags": ts_most_popular_flags,
-            "ts_least_popular_flags": ts_least_popular_flags,
-            "elo_most_popular_flags": elo_most_popular_flags,
-            "elo_least_popular_flags": elo_least_popular_flags,
+            "most_popular_country_flags": most_popular_country_flags,
+            "least_popular_country_flags": least_popular_country_flags,
+            "most_popular_state_flags": most_popular_state_flags,
+            "least_popular_state_flags": least_popular_state_flags,
         },
     )

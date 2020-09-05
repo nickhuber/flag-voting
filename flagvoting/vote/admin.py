@@ -9,6 +9,7 @@ class VoteAdmin(admin.ModelAdmin):
         "elo_rating",
         "trueskill_rating",
     )
+    list_filter = ("group",)
 
     def trueskill_rating(self, obj):
         return obj.trueskill_rating

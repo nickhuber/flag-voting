@@ -10,6 +10,11 @@
   <link href="{% static '/css/bootstrap.min.css'%}" rel="stylesheet">
   <style>
   body { padding-bottom: 60px }
+  img.vote {
+    width: 100% !important;
+    height: auto !important;
+    viewbox: auto !important;
+  }
   </style>
   {% block head %}
   {% endblock %}
@@ -21,7 +26,7 @@
   </main>
   <footer class="footer mt-auto py-3 bg-dark fixed-bottom">
     <div class="container">
-      <span class="text-muted"><a href="{% url 'vote' %}" class="text-warning">Vote</a>, or <a href="{% url 'stats' %}" class="text-warning">see some stats</a>.</span>
+      <span class="text-muted">Vote for <a href="{% url 'vote-country' %}" class="text-warning">countries</a> or <a href="{% url 'vote-state' %}" class="text-warning">states</a>, or <a href="{% url 'stats' %}" class="text-warning">see some stats</a>.</span>
       <span class="text-muted float-right">See more on <a href="https://github.com/nickhuber/flag-voting" class="text-warning">GitHub</a></span>
     </div>
   </footer>
