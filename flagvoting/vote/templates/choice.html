@@ -4,20 +4,58 @@
   <div class="container">
     <div class="flag-container row">
       <div class="col-sm">
-        <div class="flag " id="flag-1">
+        <div class="flag" id="flag-1">
           <img src="{% url 'flag' vote.choice_1.id %}" class="vote">
         </div>
       </div>
       <div class="col-sm">
-        <div class="flag " id="flag-2">
+        <div class="flag" id="flag-2">
           <img src="{% url 'flag' vote.choice_2.id %}" class="vote">
         </div>
       </div>
     </div>
-    <div class="py-5 text-center">
+    <div class="text-center">
       <h2>The ultimate flag preference voting system</h2>
       <p class="lead">Choose one of the above flags, repeat until bored.</p>
     </div>
+    {% if previous %}
+      <hr>
+      <div class="text-center">
+        <h2>Previous vote</h2>
+      </div>
+      <div class="flag-container row">
+        <div class="col-sm">
+          <div class="text-center">
+            {{ previous.choice_1_name }}
+            {% if previous.choice_1_change >= 0 %}
+              <span class="text-success">+
+            {% else %}
+              <span class="text-danger">
+            {% endif %}
+            {{ previous.choice_1_change|floatformat:2 }}
+            </span>
+            <div class=" h-25 w-25 mx-auto">
+              <img src="{% url 'flag' previous.choice_1_id %}" class="vote flag">
+            </div>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="text-center">
+            {{ previous.choice_2_name }}
+            {% if previous.choice_2_change >= 0 %}
+              <span class="text-success text-nowrap">+
+            {% else %}
+              <span class="text-danger text-nowrap">
+            {% endif %}
+            {{ previous.choice_2_change|floatformat:2 }}
+            </span>
+            <div class=" h-25 w-25 mx-auto">
+              <img src="{% url 'flag' previous.choice_2_id %}" class="vote flag">
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
   </div>
 {% csrf_token %}
 {% endblock %}

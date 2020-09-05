@@ -92,9 +92,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for path, name in STATES.items():
-            with open(
-                os.path.join(options["path_to_repo"], "svg", path), "r"
-            ) as f:
+            with open(os.path.join(options["path_to_repo"], "svg", path), "r") as f:
                 if not Flag.objects.filter(name=name).exists():
                     flag = Flag(name=name, svg=f.read(), group=FlagGroup.STATE)
                     flag.clean()

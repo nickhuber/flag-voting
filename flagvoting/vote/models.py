@@ -39,6 +39,9 @@ class Flag(models.Model):
     trueskill_rating_sigma = models.FloatField(default=trueskill.Rating().sigma)
     objects = FlagManager()
 
+    class Meta:
+        base_manager_name = "objects"
+
     def __str__(self):
         return self.name
 

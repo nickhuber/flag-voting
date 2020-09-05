@@ -38,14 +38,17 @@ def choose(request, group=FlagGroup.COUNTRY):
             voter_ip=voter_ip,
         )
         request.session[f"vote/{group}"] = str(vote.id)
-    return render(request, "choice.html", {"vote": vote})
+    return render(
+        request,
+        "choice.html",
+        {"vote": vote, "previous": request.session.get(f"previous/{group}")},
+    )
 
 
 def choice(request, group=FlagGroup.COUNTRY):
     if group not in FlagGroup:
         return JsonResponse(
-            {"status": "failure", "reason": "Invalid group"},
-            status=400,
+            {"status": "failure", "reason": "Invalid group"}, status=400,
         )
     if not request.session.get(f"vote/{group}"):
         return JsonResponse(
@@ -61,6 +64,7 @@ def choice(request, group=FlagGroup.COUNTRY):
                 {"status": "failure", "reason": "malformed request"}, status=400,
             )
         if vote.voted:
+            request.session[f"vote/{group}"] = None
             return JsonResponse(
                 {"status": "failure", "reason": "This vote was already cast"},
                 status=400,
@@ -78,11 +82,24 @@ def choice(request, group=FlagGroup.COUNTRY):
                 vote.voter_ip = x_forwarded_for.split(",")[0]
             else:
                 vote.voter_ip = request.META.get("REMOTE_ADDR")
+            choice_1_rating_pre = vote.choice_1.trueskill_rating
+            choice_2_rating_pre = vote.choice_2.trueskill_rating
             vote.update_elo()
             vote.update_trueskill()
             vote.save()
+            vote.refresh_from_db()
+            choice_1_rating_post = vote.choice_1.trueskill_rating
+            choice_2_rating_post = vote.choice_2.trueskill_rating
             request.session[f"vote/{group}"] = None
-            return JsonResponse({"status": "success"})
+            request.session[f"previous/{group}"] = {
+                "choice_1_id": vote.choice_1.id,
+                "choice_2_id": vote.choice_2.id,
+                "choice_1_name": vote.choice_1.name,
+                "choice_2_name": vote.choice_2.name,
+                "choice_1_change": choice_1_rating_post - choice_1_rating_pre,
+                "choice_2_change": choice_2_rating_post - choice_2_rating_pre,
+            }
+            return JsonResponse({"status": "success",})
         else:
             return JsonResponse(
                 {"status": "failure", "reason": "invalid chosen flag"}, status=400,
@@ -99,10 +116,18 @@ def flag(request, id):
 
 
 def stats(request):
-    most_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by("-trueskill_rating")[:5]
-    least_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by("trueskill_rating")[:5]
-    most_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by("-trueskill_rating")[:5]
-    least_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by("trueskill_rating")[:5]
+    most_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by(
+        "-trueskill_rating"
+    )[:5]
+    least_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by(
+        "trueskill_rating"
+    )[:5]
+    most_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by(
+        "-trueskill_rating"
+    )[:5]
+    least_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by(
+        "trueskill_rating"
+    )[:5]
     return render(
         request,
         "stats.html",
