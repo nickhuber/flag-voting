@@ -19,7 +19,6 @@ urlpatterns = [
         name="vote-state",
         kwargs={"group": FlagGroup.STATE},
     ),
-    path("choice/", vote.views.choice),
     path("country/choice/", vote.views.choice, kwargs={"group": FlagGroup.COUNTRY}),
     path("state/choice/", vote.views.choice, kwargs={"group": FlagGroup.STATE}),
     path("stats/", vote.views.stats, name="stats"),

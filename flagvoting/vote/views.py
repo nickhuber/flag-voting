@@ -1,7 +1,7 @@
 import json
 import random
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
 
@@ -41,7 +41,11 @@ def choose(request, group=FlagGroup.COUNTRY):
     return render(
         request,
         "choice.html",
-        {"vote": vote, "previous": request.session.get(f"previous/{group}")},
+        {
+            "vote": vote,
+            "previous": request.session.get(f"previous/{group}"),
+            "group": group.lower(),
+        },
     )
 
 
@@ -57,25 +61,11 @@ def choice(request, group=FlagGroup.COUNTRY):
         )
     vote = Vote.objects.get(id=request.session[f"vote/{group}"])
     if request.method == "POST":
-        try:
-            vote_request = json.loads(request.body)
-        except TypeError:
-            return JsonResponse(
-                {"status": "failure", "reason": "malformed request"}, status=400,
-            )
-        if vote.voted:
+        choice = int(request.POST["choice"])
+        if vote.choice:
             request.session[f"vote/{group}"] = None
-            return JsonResponse(
-                {"status": "failure", "reason": "This vote was already cast"},
-                status=400,
-            )
-        if "chosen_flag_id" not in vote_request:
-            return JsonResponse(
-                {"status": "failure", "reason": "No flag was voted for"}, status=400,
-            )
-
-        if vote_request["chosen_flag_id"] in (vote.choice_1.id, vote.choice_2.id):
-            vote.choice = Flag.objects.get(id=vote_request["chosen_flag_id"])
+        elif choice in (vote.choice_1.id, vote.choice_2.id):
+            vote.choice = Flag.objects.get(id=choice)
             vote.voted = True
             x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
             if x_forwarded_for:
@@ -99,15 +89,7 @@ def choice(request, group=FlagGroup.COUNTRY):
                 "choice_1_change": choice_1_rating_post - choice_1_rating_pre,
                 "choice_2_change": choice_2_rating_post - choice_2_rating_pre,
             }
-            return JsonResponse({"status": "success",})
-        else:
-            return JsonResponse(
-                {"status": "failure", "reason": "invalid chosen flag"}, status=400,
-            )
-    else:
-        return JsonResponse(
-            {"status": "failure", "reason": "only POST allowed"}, status=400
-        )
+    return redirect(f"/{group.lower()}/")
 
 
 def flag(request, id):

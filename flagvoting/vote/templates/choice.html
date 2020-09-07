@@ -4,14 +4,18 @@
   <div class="container">
     <div class="flag-container row">
       <div class="col-sm">
-        <div class="flag" id="flag-1">
-          <img src="{% url 'flag' vote.choice_1.id %}" class="vote">
-        </div>
+        <form action="/{{ group }}/choice/" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="choice" value="{{ vote.choice_1.id }}">
+          <input type="image" name="submit" src="{% url 'flag' vote.choice_1.id %}" class="flag vote">
+        </form>
       </div>
       <div class="col-sm">
-        <div class="flag" id="flag-2">
-          <img src="{% url 'flag' vote.choice_2.id %}" class="vote">
-        </div>
+        <form action="/{{ group }}/choice/" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="choice" value="{{ vote.choice_2.id }}">
+          <input type="image" name="submit" src="{% url 'flag' vote.choice_2.id %}" class="flag vote">
+        </form>
       </div>
     </div>
     <div class="text-center">
@@ -28,12 +32,10 @@
           <div class="text-center">
             {{ previous.choice_1_name }}
             {% if previous.choice_1_change >= 0 %}
-              <span class="text-success">+
+              <span class="text-success text-nowrap">+{{ previous.choice_1_change|floatformat:2 }}</span>
             {% else %}
-              <span class="text-danger">
+              <span class="text-danger text-nowrap">{{ previous.choice_1_change|floatformat:2 }}</span>
             {% endif %}
-            {{ previous.choice_1_change|floatformat:2 }}
-            </span>
             <div class=" h-25 w-25 mx-auto">
               <img src="{% url 'flag' previous.choice_1_id %}" class="vote flag">
             </div>
@@ -43,12 +45,10 @@
           <div class="text-center">
             {{ previous.choice_2_name }}
             {% if previous.choice_2_change >= 0 %}
-              <span class="text-success text-nowrap">+
+              <span class="text-success text-nowrap">+{{ previous.choice_2_change|floatformat:2 }}</span>
             {% else %}
-              <span class="text-danger text-nowrap">
+              <span class="text-danger text-nowrap">{{ previous.choice_2_change|floatformat:2 }}</span>
             {% endif %}
-            {{ previous.choice_2_change|floatformat:2 }}
-            </span>
             <div class=" h-25 w-25 mx-auto">
               <img src="{% url 'flag' previous.choice_2_id %}" class="vote flag">
             </div>
@@ -57,35 +57,16 @@
       </div>
     {% endif %}
   </div>
-{% csrf_token %}
 {% endblock %}
 
 {% block head %}
 <style>
 .flag-container { align-items: center; gap: 20px; }
 .flag { box-shadow: 2px 2px 12px #928374;  margin-top: 20px; margin-bottom: 20px; }
+.vote {
+  width: 100% !important;
+  height: auto !important;
+  viewbox: auto !important;
+}
 </style>
-{% endblock %}
-
-{% block scripts %}
-<script>
-  (function () {
-    const vote_id = "{{ vote.id }}";
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    document.getElementById("flag-1").onclick = function () {
-      fetch("choice/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify({ chosen_flag_id: {{ vote.choice_1.id }} })
-      }).then(response => location.reload());
-    }
-    document.getElementById("flag-2").onclick = function () {
-      fetch("choice/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify({ chosen_flag_id: {{ vote.choice_2.id }} })
-      }).then(response => location.reload());
-    }
-  })();
-</script>
 {% endblock %}
