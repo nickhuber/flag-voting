@@ -21,19 +21,42 @@
     <h1>Countries</h1>
     <div class="row">
       <div class="col-sm">
-        <h3>Highest rated flags</h3>
+        <table class="table table-striped">
+        <thead>
+          <tr>
+            <th colspan="2">Top 5</th>
+          </tr>
+        </thead>
         {% for flag in most_popular_country_flags %}
-          <h4>{{flag.name}}</h4>
+        <tr>
+        <td class="align-middle">
+          {{ flag.name }}
+        </td>
+        <td>
           <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </td>
+        </tr>
         {% endfor %}
+        </table>
       </div>
-
       <div class="col-sm">
-        <h3>Lowest rated 5 flags</h3>
+        <table class="table table-striped">
+        <thead>
+          <tr>
+            <th colspan="2">Bottom 5</th>
+          </tr>
+        </thead>
         {% for flag in least_popular_country_flags %}
-          <h4>{{flag.name}}</h4>
+        <tr>
+        <td class="align-middle">
+          {{ flag.name }}
+        </td>
+        <td>
           <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </td>
+        </tr>
         {% endfor %}
+        </table>
       </div>
     </div>
 
@@ -41,24 +64,48 @@
 
     <h1>
       States
-      <br>
-      <small class="text-muted">or provinces or territories or whatever</small>
     </h1>
+    <h5>
+      <small class="text-muted">or provinces or territories or whatever</small>
+    </h5>
     <div class="row">
       <div class="col-sm">
-        <h3>Highest rated flags</h3>
+        <table class="table table-striped">
+        <thead>
+          <tr>
+            <th colspan="2">Top 5</th>
+          </tr>
+        </thead>
         {% for flag in most_popular_state_flags %}
-          <h4>{{flag.name}}</h4>
+        <tr>
+        <td class="align-middle">
+          {{ flag.name }}
+        </td>
+        <td>
           <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </td>
+        </tr>
         {% endfor %}
+        </table>
       </div>
-
       <div class="col-sm">
-        <h3>Lowest rated 5 flags</h3>
+        <table class="table table-striped">
+        <thead>
+          <tr>
+            <th colspan="2">Bottom 5</th>
+          </tr>
+        </thead>
         {% for flag in least_popular_state_flags %}
-          <h4>{{flag.name}}</h4>
+        <tr>
+        <td class="align-middle">
+          {{ flag.name }}
+        </td>
+        <td>
           <img src="{% url 'flag' flag.id %}" class="flag-small">
+        </td>
+        </tr>
         {% endfor %}
+        </table>
       </div>
     </div>
   </div>
