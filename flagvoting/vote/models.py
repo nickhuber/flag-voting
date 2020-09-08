@@ -53,7 +53,8 @@ class Vote(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    voter_ip = models.GenericIPAddressField(null=True)
+    voter_created_ip = models.GenericIPAddressField(null=True)
+    voter_voted_ip = models.GenericIPAddressField(null=True)
     choice_1 = models.ForeignKey(
         Flag, on_delete=models.CASCADE, related_name="first_choice"
     )
@@ -63,7 +64,6 @@ class Vote(models.Model):
     choice = models.ForeignKey(
         Flag, on_delete=models.CASCADE, related_name="chosen_choice", null=True,
     )
-    voted = models.BooleanField(db_index=True)
 
     def __str__(self):
         if self.choice:

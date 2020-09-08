@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import models
 from .models import Flag, Vote
 
 
@@ -17,15 +18,40 @@ class VoteAdmin(admin.ModelAdmin):
     trueskill_rating.admin_order_field = "trueskill_rating"
 
 
+class HasVoteFilter(admin.SimpleListFilter):
+    title = "Has vote"
+    parameter_name = "has_vote"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("Yes", "Yes"),
+            ("No", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "Yes":
+            return queryset.filter(choice__isnull=False)
+        elif value == "No":
+            return queryset.filter(choice__isnull=True)
+        return queryset
+
+
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
     list_display = (
         "description",
-        "voted",
-        "voter_ip",
+        "voter_created_ip",
+        "voter_voted_ip",
         "created_at",
     )
-    list_filter = ("voted",)
+    list_filter = (HasVoteFilter,)
+
+    def get_ordering(self, request):
+        return ["-created_at"]
 
     def description(self, obj):
         return str(obj)
+
+    def voted(self, obj):
+        return obj.voted

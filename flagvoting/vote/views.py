@@ -32,10 +32,9 @@ def choose(request, group=FlagGroup.COUNTRY):
         else:
             voter_ip = request.META.get("REMOTE_ADDR")
         vote = Vote.objects.create(
-            voted=False,
             choice_1=Flag.objects.get(id=first_id),
             choice_2=Flag.objects.get(id=second_id),
-            voter_ip=voter_ip,
+            voter_created_ip=voter_ip,
         )
         request.session[f"vote/{group}"] = str(vote.id)
     return render(
@@ -66,12 +65,11 @@ def choice(request, group=FlagGroup.COUNTRY):
             request.session[f"vote/{group}"] = None
         elif choice in (vote.choice_1.id, vote.choice_2.id):
             vote.choice = Flag.objects.get(id=choice)
-            vote.voted = True
             x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
             if x_forwarded_for:
-                vote.voter_ip = x_forwarded_for.split(",")[0]
+                vote.voter_voted_ip = x_forwarded_for.split(",")[0]
             else:
-                vote.voter_ip = request.META.get("REMOTE_ADDR")
+                vote.voter_voted_ip = request.META.get("REMOTE_ADDR")
             choice_1_rating_pre = vote.choice_1.trueskill_rating
             choice_2_rating_pre = vote.choice_2.trueskill_rating
             vote.update_elo()

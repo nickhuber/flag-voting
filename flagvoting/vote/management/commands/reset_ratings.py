@@ -13,6 +13,6 @@ class Command(BaseCommand):
             trueskill_rating_mu=trueskill.Rating().mu,
             trueskill_rating_sigma=trueskill.Rating().sigma,
         )
-        for vote in Vote.objects.filter(voted=True).order_by("updated_at"):
+        for vote in Vote.objects.filter(choice__isnull=False).order_by("updated_at"):
             vote.update_elo()
             vote.update_trueskill()
