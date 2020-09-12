@@ -1,20 +1,22 @@
 {% extends "_base.html" %}
 
+{% block title %} - {{ group }} vote{% endblock %}
+
 {% block content %}
   <div class="container">
     <div class="flag-container row">
       <div class="col-sm">
         <form action="/{{ group }}/choice/" method="POST">
           {% csrf_token %}
-          <input type="hidden" name="choice" value="{{ vote.choice_1.id }}">
-          <input type="image" name="submit" src="{% url 'flag' vote.choice_1.id %}" class="flag vote">
+          <input type="hidden" name="choice" value="{{ vote.choice_1_id }}">
+          <input type="image" name="submit" src="{% url 'flag' vote.choice_1_id %}" class="flag vote">
         </form>
       </div>
       <div class="col-sm">
         <form action="/{{ group }}/choice/" method="POST">
           {% csrf_token %}
-          <input type="hidden" name="choice" value="{{ vote.choice_2.id }}">
-          <input type="image" name="submit" src="{% url 'flag' vote.choice_2.id %}" class="flag vote">
+          <input type="hidden" name="choice" value="{{ vote.choice_2_id }}">
+          <input type="image" name="submit" src="{% url 'flag' vote.choice_2_id %}" class="flag vote">
         </form>
       </div>
     </div>
@@ -28,7 +30,7 @@
         <h2>Previous vote</h2>
       </div>
       <div class="flag-container row">
-        <div class="col-sm">
+        <div class="col">
           <div class="text-center">
             {{ previous.choice_1_name }}
             {% if previous.choice_1_change >= 0 %}
@@ -41,7 +43,7 @@
             </div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="col">
           <div class="text-center">
             {{ previous.choice_2_name }}
             {% if previous.choice_2_change >= 0 %}

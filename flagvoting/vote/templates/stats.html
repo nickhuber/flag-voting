@@ -1,5 +1,7 @@
 {% extends "_base.html" %}
 
+{% block title %} - Stats{% endblock %}
+
 {% block head %}
 <style>
 .flag-small { height: 7em; box-shadow: 2px 2px 12px #928374; };
@@ -108,7 +110,9 @@
         </table>
       </div>
     </div>
+    <div class="">
+      Or maybe you want to see <a href="{% url 'full-stats' %}">even more stats</a>.
+      <div class="badge bg-warning text-dark">This can take a while to load</div>
+    </div>
   </div>
 {% endblock %}
-
-{% block title %} - stats{% endblock %}

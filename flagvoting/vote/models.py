@@ -34,6 +34,8 @@ class Flag(models.Model):
         default=FlagGroup.COUNTRY,
         db_index=True,
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     elo_rating = models.FloatField(default=1000.0)
     trueskill_rating_mu = models.FloatField(default=trueskill.Rating().mu)
     trueskill_rating_sigma = models.FloatField(default=trueskill.Rating().sigma)

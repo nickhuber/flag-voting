@@ -1,0 +1,60 @@
+{% extends "_base.html" %}
+
+{% block title %} - Full stats{% endblock %}
+
+{% block head %}
+<style>
+.flag-small { height: 7em; box-shadow: 2px 2px 12px #928374; };
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="container text-center">
+    <div class="py-5">
+      <h2>Stats</h2>
+      <p class="lead">
+        The flags are ranked as if this were a skill based 1v1 competition, using
+        the TrueSkill™ rating algorithm.
+      </p>
+    </div>
+
+    <hr>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+        <th>Rank</th>
+        <th colspan="2">Countries</th>
+        <th colspan="2">States</th>
+        </tr>
+      </thead>
+      {% for country_flag, state_flag in flags %}
+        <tr>
+          <td class="align-middle">
+            {{ forloop.counter }}
+          </td>
+          <td class="align-middle">
+            {% if country_flag %}
+              {{ country_flag.name }}
+            {% endif %}
+          </td>
+          <td>
+            {% if country_flag %}
+              <img src="{% url 'flag' country_flag.id %}" class="flag-small">
+            {% endif %}
+          </td>
+          <td class="align-middle">
+            {% if state_flag %}
+              {{ state_flag.name }}
+            {% endif %}
+          </td>
+          <td>
+            {% if state_flag %}
+              <img src="{% url 'flag' state_flag.id %}" class="flag-small">
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}
