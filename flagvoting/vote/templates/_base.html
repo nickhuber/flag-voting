@@ -16,6 +16,16 @@
 </head>
 
 <body class="d-flex flex-column h-100 bg-light">
+{% if messages %}
+    {% for message in messages %}
+      {% if message.tags == "error" %}
+        <div class="alert alert-danger" role="alert">
+          {{ message }}
+        </div>
+      {% endif%}
+    {% endfor %}
+{% endif %}
+
   <main class="flex-shrink-0">
   {% block content %}{% endblock %}
   </main>
