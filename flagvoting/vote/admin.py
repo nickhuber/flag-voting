@@ -9,10 +9,11 @@ from .models import Flag, Vote
 class VoteAdmin(admin.ModelAdmin):
     list_display = (
         "name",
+        "include_in_votes",
         "elo_rating",
         "trueskill_rating",
     )
-    list_filter = ("group",)
+    list_filter = ("group", "include_in_votes")
 
     def trueskill_rating(self, obj):
         return obj.trueskill_rating
