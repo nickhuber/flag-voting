@@ -23,7 +23,6 @@ urlpatterns = [
     path("state/choice/", vote.views.choice, kwargs={"group": FlagGroup.STATE}),
     path("stats/", vote.views.stats, name="stats"),
     path("full-stats/", vote.views.full_stats, name="full-stats"),
-    path("flag/<int:id>.svg", vote.views.flag, name="flag"),
     path("admin/", admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

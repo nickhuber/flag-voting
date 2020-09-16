@@ -1,6 +1,7 @@
-from django.contrib.sessions.models import Session
 from django.contrib import admin
+from django.contrib.sessions.models import Session
 from django.db import models
+
 from .models import Flag, Vote
 
 
@@ -47,6 +48,11 @@ class VoteAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = (HasVoteFilter,)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.select_related("choice_1", "choice_2", "choice")
+        return qs
 
     def get_ordering(self, request):
         return ["-created_at"]

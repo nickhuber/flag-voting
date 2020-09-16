@@ -1,5 +1,7 @@
 {% extends "_base.html" %}
 
+{% load base64 %}
+
 {% block title %} - Full stats{% endblock %}
 
 {% block head %}
@@ -40,7 +42,7 @@
           </td>
           <td>
             {% if country_flag %}
-              <img src="{% url 'flag' country_flag.id %}" class="flag-small">
+              <img src="data:image/svg+xml;base64,{{ country_flag.svg|base64 }}" class="flag-small">
             {% endif %}
           </td>
           <td class="align-middle">
@@ -50,7 +52,7 @@
           </td>
           <td>
             {% if state_flag %}
-              <img src="{% url 'flag' state_flag.id %}" class="flag-small">
+              <img src="data:image/svg+xml;base64,{{ state_flag.svg|base64 }}" class="flag-small">
             {% endif %}
           </td>
         </tr>

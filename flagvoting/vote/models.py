@@ -39,6 +39,7 @@ class Flag(models.Model):
     elo_rating = models.FloatField(default=1000.0)
     trueskill_rating_mu = models.FloatField(default=trueskill.Rating().mu)
     trueskill_rating_sigma = models.FloatField(default=trueskill.Rating().sigma)
+    include_in_votes = models.BooleanField(default=True)
     objects = FlagManager()
 
     class Meta:
@@ -49,6 +50,13 @@ class Flag(models.Model):
 
     def clean(self):
         self.svg = re.sub(r"<title>.*<\/title>", "", self.svg)
+
+    def get_trueskill_rating(self):
+        """
+        Should be the same as `.trueskill_rating` but you don't always get
+        the right manager object so this can be helpful as a fallback.
+        """
+        return self.trueskill_rating_mu - (3 * self.trueskill_rating_sigma)
 
 
 class Vote(models.Model):
@@ -83,9 +91,7 @@ class Vote(models.Model):
                 self.choice_2.elo_rating, self.choice_1.elo_rating
             )
         self.choice_2.elo_rating = choice_2_elo
-        self.choice_2.save()
         self.choice_1.elo_rating = choice_1_elo
-        self.choice_1.save()
 
     def update_trueskill(self):
         if self.choice_id == self.choice_1_id:
@@ -112,7 +118,5 @@ class Vote(models.Model):
             )
         self.choice_2.trueskill_rating_mu = choice_2_trueskill.mu
         self.choice_2.trueskill_rating_sigma = choice_2_trueskill.sigma
-        self.choice_2.save()
         self.choice_1.trueskill_rating_mu = choice_1_trueskill.mu
         self.choice_1.trueskill_rating_sigma = choice_1_trueskill.sigma
-        self.choice_1.save()

@@ -33,7 +33,7 @@ def choose(request, group=FlagGroup.COUNTRY):
             del request.session[f"vote/{group}"]
     if not vote:
         # No previous vote, or previous vote was resolved
-        ids = list(Flag.objects.filter(group=group).values_list("id", flat=True))
+        ids = list(Flag.objects.filter(group=group, include_in_votes=True).values_list("id", flat=True))
         first_id = random.choice(ids)
         ids.remove(first_id)
         second_id = random.choice(ids)
@@ -60,26 +60,27 @@ def choice(request, group=FlagGroup.COUNTRY):
     if not request.session.get(f"vote/{group}"):
         messages.error(request, "Failed to submit vote, try again.")
         return redirect(f"/{group.lower()}/")
-    vote = Vote.objects.get(id=request.session[f"vote/{group}"])
+    vote = Vote.objects.select_related("choice_1", "choice_2").get(
+        id=request.session[f"vote/{group}"]
+    )
     if request.method == "POST":
-        choice = int(request.POST["choice"])
+        choice_id = int(request.POST["choice"])
         if vote.choice:
             request.session[f"vote/{group}"] = None
-        elif choice in (vote.choice_1_id, vote.choice_2_id):
-            vote.choice = Flag.objects.get(id=choice)
+        elif choice_id in (vote.choice_1_id, vote.choice_2_id):
+            vote.choice_id = choice_id
             vote.voter_voted_ip = get_ip_from_request(request)
-            choice_1_rating_pre = vote.choice_1.trueskill_rating
-            choice_2_rating_pre = vote.choice_2.trueskill_rating
+            choice_1_rating_pre = vote.choice_1.get_trueskill_rating()
+            choice_2_rating_pre = vote.choice_2.get_trueskill_rating()
             vote.update_elo()
             vote.update_trueskill()
             vote.save()
-            vote.refresh_from_db()
-            choice_1_rating_post = vote.choice_1.trueskill_rating
-            choice_2_rating_post = vote.choice_2.trueskill_rating
+            choice_1_rating_post = vote.choice_1.get_trueskill_rating()
+            choice_2_rating_post = vote.choice_2.get_trueskill_rating()
             request.session[f"vote/{group}"] = None
             request.session[f"previous/{group}"] = {
-                "choice_1_id": vote.choice_1_id,
-                "choice_2_id": vote.choice_2_id,
+                "choice_1_svg": vote.choice_1.svg,
+                "choice_2_svg": vote.choice_2.svg,
                 "choice_1_name": vote.choice_1.name,
                 "choice_2_name": vote.choice_2.name,
                 "choice_1_change": choice_1_rating_post - choice_1_rating_pre,
@@ -88,22 +89,17 @@ def choice(request, group=FlagGroup.COUNTRY):
     return redirect(f"/{group.lower()}/")
 
 
-def flag(request, id):
-    svg = get_object_or_404(Flag, id=id).svg
-    return HttpResponse(svg, content_type="image/svg+xml")
-
-
 def stats(request):
-    most_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by(
+    most_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY, include_in_votes=True).order_by(
         "-trueskill_rating"
     )[:5]
-    least_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by(
+    least_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY, include_in_votes=True).order_by(
         "trueskill_rating"
     )[:5]
-    most_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by(
+    most_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE, include_in_votes=True).order_by(
         "-trueskill_rating"
     )[:5]
-    least_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by(
+    least_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE, include_in_votes=True).order_by(
         "trueskill_rating"
     )[:5]
     return render(
@@ -119,10 +115,10 @@ def stats(request):
 
 
 def full_stats(request):
-    country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY).order_by(
+    country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY, include_in_votes=True).order_by(
         "-trueskill_rating"
     )
-    state_flags = Flag.objects.filter(group=FlagGroup.STATE).order_by(
+    state_flags = Flag.objects.filter(group=FlagGroup.STATE, include_in_votes=True).order_by(
         "-trueskill_rating"
     )
     return render(

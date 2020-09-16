@@ -1,5 +1,7 @@
 {% extends "_base.html" %}
 
+{% load base64 %}
+
 {% block title %} - {{ group }} vote{% endblock %}
 
 {% block content %}
@@ -9,14 +11,14 @@
         <form action="/{{ group }}/choice/" method="POST">
           {% csrf_token %}
           <input type="hidden" name="choice" value="{{ vote.choice_1_id }}">
-          <input type="image" name="submit" src="{% url 'flag' vote.choice_1_id %}" class="flag vote">
+          <input type="image" name="submit" src="data:image/svg+xml;base64,{{ vote.choice_1.svg|base64 }}" class="flag vote">
         </form>
       </div>
       <div class="col-sm">
         <form action="/{{ group }}/choice/" method="POST">
           {% csrf_token %}
           <input type="hidden" name="choice" value="{{ vote.choice_2_id }}">
-          <input type="image" name="submit" src="{% url 'flag' vote.choice_2_id %}" class="flag vote">
+          <input type="image" name="submit" src="data:image/svg+xml;base64,{{ vote.choice_2.svg|base64 }}" class="flag vote">
         </form>
       </div>
     </div>
@@ -39,7 +41,7 @@
               <span class="text-danger text-nowrap">{{ previous.choice_1_change|floatformat:2 }}</span>
             {% endif %}
             <div class=" h-25 w-25 mx-auto">
-              <img src="{% url 'flag' previous.choice_1_id %}" class="vote flag">
+              <img src="data:image/svg+xml;base64,{{ previous.choice_1_svg|base64 }}" class="vote flag">
             </div>
           </div>
         </div>
@@ -52,7 +54,7 @@
               <span class="text-danger text-nowrap">{{ previous.choice_2_change|floatformat:2 }}</span>
             {% endif %}
             <div class=" h-25 w-25 mx-auto">
-              <img src="{% url 'flag' previous.choice_2_id %}" class="vote flag">
+              <img src="data:image/svg+xml;base64,{{ previous.choice_2_svg|base64 }}" class="vote flag">
             </div>
           </div>
         </div>
