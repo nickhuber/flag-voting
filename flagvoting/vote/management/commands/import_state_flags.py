@@ -24,4 +24,13 @@ class Command(BaseCommand):
                         flag.save()
                         self.stdout.write(self.style.SUCCESS(f'Imported "{name}"'))
                     else:
-                        self.stdout.write(f'"{name}" already exists')
+                        
+                        flag = Flag.objects.get(name=name)
+                        svg = f.read()
+                        if flag.svg != svg:
+                            flag.svg = svg
+                            flag.save() 
+                            self.stdout.write(self.style.SUCCESS(f'"{name}" updated'))
+                        else:
+                            self.stdout.write(f'"{name}" unchanged')
+
