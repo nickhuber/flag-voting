@@ -24,7 +24,7 @@ class Command(BaseCommand):
                         flag.save()
                         self.stdout.write(self.style.SUCCESS(f'Imported "{name}"'))
                     else:
-                        flag = Flag.objects.get(name=name)
+                        flag = Flag.objects.get(name=name, group=FlagGroup.STATE)
                         svg = flag.svg
                         flag.svg = f.read()
                         flag.clean()
