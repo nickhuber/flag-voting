@@ -123,3 +123,6 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+# How many votes a flag needs to be considered for until it is shown on the stats pages
+MINIMUM_VOTES_FOR_STATS = 5

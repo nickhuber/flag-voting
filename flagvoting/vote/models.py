@@ -1,11 +1,14 @@
 import uuid
 import re
 
+from scour import scour
 import elo
 import trueskill
 
+from django.conf import settings
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Q, Count
+from django.db.models.expressions import Case, When
 
 
 class FlagManager(models.Manager):
@@ -16,6 +19,32 @@ class FlagManager(models.Manager):
                 F("trueskill_rating_mu") - (3 * F("trueskill_rating_sigma")),
                 output_field=models.FloatField(),
             )
+        )
+        return qs
+
+
+class MinimumVoteManager(FlagManager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = (
+            qs.annotate(
+                num_first_choices=Count(
+                    "first_choice",
+                    Case(
+                        When(first_choice__choice__isnull=False, then=1),
+                        When(first_choice__choice__isnull=True, then=0),
+                    ),
+                ),
+                num_second_choices=Count(
+                    "second_choice",
+                    Case(
+                        When(second_choice__choice__isnull=False, then=1),
+                        When(second_choice__choice__isnull=True, then=0),
+                    ),
+                ),
+            )
+            .annotate(num_choices=F("num_first_choices") + F("num_second_choices"))
+            .filter(num_choices__gt=settings.MINIMUM_VOTES_FOR_STATS)
         )
         return qs
 
@@ -40,7 +69,9 @@ class Flag(models.Model):
     trueskill_rating_mu = models.FloatField(default=trueskill.Rating().mu)
     trueskill_rating_sigma = models.FloatField(default=trueskill.Rating().sigma)
     include_in_votes = models.BooleanField(default=True)
+
     objects = FlagManager()
+    minimum_votes_objects = MinimumVoteManager()
 
     class Meta:
         base_manager_name = "objects"
@@ -50,6 +81,11 @@ class Flag(models.Model):
 
     def clean(self):
         self.svg = re.sub(r"<title>.*<\/title>", "", self.svg)
+        try:
+            self.svg = scour.scourString(self.svg)
+        except:
+            # Scour seems to struggle on some SVGs so just skip past them
+            pass
 
     def get_trueskill_rating(self):
         """

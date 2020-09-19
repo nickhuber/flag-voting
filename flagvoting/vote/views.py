@@ -33,7 +33,11 @@ def choose(request, group=FlagGroup.COUNTRY):
             del request.session[f"vote/{group}"]
     if not vote:
         # No previous vote, or previous vote was resolved
-        ids = list(Flag.objects.filter(group=group, include_in_votes=True).values_list("id", flat=True))
+        ids = list(
+            Flag.objects.filter(group=group, include_in_votes=True).values_list(
+                "id", flat=True
+            )
+        )
         first_id = random.choice(ids)
         ids.remove(first_id)
         second_id = random.choice(ids)
@@ -90,18 +94,18 @@ def choice(request, group=FlagGroup.COUNTRY):
 
 
 def stats(request):
-    most_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY, include_in_votes=True).order_by(
-        "-trueskill_rating"
-    )[:5]
-    least_popular_country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY, include_in_votes=True).order_by(
-        "trueskill_rating"
-    )[:5]
-    most_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE, include_in_votes=True).order_by(
-        "-trueskill_rating"
-    )[:5]
-    least_popular_state_flags = Flag.objects.filter(group=FlagGroup.STATE, include_in_votes=True).order_by(
-        "trueskill_rating"
-    )[:5]
+    most_popular_country_flags = Flag.objects.filter(
+        group=FlagGroup.COUNTRY, include_in_votes=True
+    ).order_by("-trueskill_rating")[:5]
+    least_popular_country_flags = Flag.minimum_votes_objects.filter(
+        group=FlagGroup.COUNTRY, include_in_votes=True
+    ).order_by("trueskill_rating")[:5]
+    most_popular_state_flags = Flag.objects.filter(
+        group=FlagGroup.STATE, include_in_votes=True
+    ).order_by("-trueskill_rating")[:5]
+    least_popular_state_flags = Flag.minimum_votes_objects.filter(
+        group=FlagGroup.STATE, include_in_votes=True
+    ).order_by("trueskill_rating")[:5]
     return render(
         request,
         "stats.html",
@@ -115,12 +119,12 @@ def stats(request):
 
 
 def full_stats(request):
-    country_flags = Flag.objects.filter(group=FlagGroup.COUNTRY, include_in_votes=True).order_by(
-        "-trueskill_rating"
-    )
-    state_flags = Flag.objects.filter(group=FlagGroup.STATE, include_in_votes=True).order_by(
-        "-trueskill_rating"
-    )
+    country_flags = Flag.minimum_votes_objects.filter(
+        group=FlagGroup.COUNTRY, include_in_votes=True
+    ).order_by("-trueskill_rating")
+    state_flags = Flag.minimum_votes_objects.filter(
+        group=FlagGroup.STATE, include_in_votes=True
+    ).order_by("-trueskill_rating")
     return render(
         request,
         "full_stats.html",

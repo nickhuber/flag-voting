@@ -1,3 +1,4 @@
 Django==3.1
 elo==0.1.1
+scour==0.38
 trueskill==0.4.5

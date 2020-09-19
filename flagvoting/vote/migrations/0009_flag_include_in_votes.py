@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vote', '0008_flag_created_updated_timestamps'),
+        ("vote", "0008_flag_created_updated_timestamps"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='flag',
-            name='include_in_votes',
+            model_name="flag",
+            name="include_in_votes",
             field=models.BooleanField(default=True),
         ),
     ]

@@ -29,7 +29,7 @@ class Command(BaseCommand):
                         flag.svg = f.read()
                         flag.clean()
                         if flag.svg != svg:
-                            flag.save() 
+                            flag.save()
                             self.stdout.write(self.style.SUCCESS(f'"{name}" updated'))
                         else:
                             self.stdout.write(f'"{name}" unchanged')
