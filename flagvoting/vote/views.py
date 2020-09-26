@@ -78,6 +78,8 @@ def choice(request, group=FlagGroup.COUNTRY):
             choice_2_rating_pre = vote.choice_2.get_trueskill_rating()
             vote.update_elo()
             vote.update_trueskill()
+            vote.choice_1.save()
+            vote.choice_2.save()
             vote.save()
             choice_1_rating_post = vote.choice_1.get_trueskill_rating()
             choice_2_rating_post = vote.choice_2.get_trueskill_rating()
