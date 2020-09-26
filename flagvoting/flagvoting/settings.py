@@ -81,13 +81,37 @@ WSGI_APPLICATION = "flagvoting.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+try:
+    from .database_configuration import (
+        DB_ENGINE,
+        DB_NAME,
+        DB_USER,
+        DB_PASSWORD,
+        DB_HOST,
+        DB_PORT,
+    )
+except ImportError:
+    print("Please configure a flagvoting/database_configuration.py with required information")
+    exit(1)
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": DB_ENGINE,
+        "NAME": DB_NAME,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASSWORD,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
     }
 }
 
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

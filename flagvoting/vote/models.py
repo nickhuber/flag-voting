@@ -31,15 +31,15 @@ class MinimumVoteManager(FlagManager):
                 num_first_choices=Count(
                     "first_choice",
                     Case(
-                        When(first_choice__choice__isnull=False, then=1),
-                        When(first_choice__choice__isnull=True, then=0),
+                        When(first_choice__choice__isnull=False, then=True),
+                        When(first_choice__choice__isnull=True, then=False),
                     ),
                 ),
                 num_second_choices=Count(
                     "second_choice",
                     Case(
-                        When(second_choice__choice__isnull=False, then=1),
-                        When(second_choice__choice__isnull=True, then=0),
+                        When(second_choice__choice__isnull=False, then=True),
+                        When(second_choice__choice__isnull=True, then=False),
                     ),
                 ),
             )
