@@ -16,3 +16,5 @@ class Command(BaseCommand):
         for vote in Vote.objects.filter(choice__isnull=False).order_by("updated_at"):
             vote.update_elo()
             vote.update_trueskill()
+            vote.choice_1.save()
+            vote.choice_2.save()
